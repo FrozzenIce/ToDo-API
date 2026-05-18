@@ -480,3 +480,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# VS Code C# Dev Kit cache
+*.lscache
+
+# Local secrets / configuration
+appsettings.Development.json
