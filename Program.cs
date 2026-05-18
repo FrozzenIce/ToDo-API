@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ToDo.Data;
-using ToDo.Models;
+using ToDo.DTO;
 using ToDo.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer(); // Required for Minimal APIs
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
+
 {
     options.UseInMemoryDatabase("TasksDatabase");
 });
@@ -33,18 +34,18 @@ app.MapGet("/tasks", async (ITaskService service) =>
 
 app.MapGet("/tasks/{id}", async (int id, ITaskService service) =>
 {
-    var task = await service.GetTaskById(id);
+    var response = await service.GetTaskById(id);
 
-    return task is null
+    return response is null
         ? Results.NotFound()
-        : Results.Ok(task);
+        : Results.Ok(response);
 });
 
 app.MapPost("/tasks", async (TaskRequest request, ITaskService service) =>
 {
-    var task = await service.AddTask(request);
+    var response = await service.AddTask(request);
 
-    return Results.Created($"/tasks/{task.Id}", task);
+    return Results.Created($"/tasks/{response.Id}", response);
 });
 
 app.MapPut("/tasks/{id}", async (int id, TaskRequest request, ITaskService service) =>

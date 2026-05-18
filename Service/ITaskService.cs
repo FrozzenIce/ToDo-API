@@ -1,11 +1,12 @@
 using ToDo.Models;
+using ToDo.DTO;
 
 namespace ToDo.Service;
 
 public interface ITaskService
 {
-    Task<List<Tasks>> GetAllTasks();
-    Task<Tasks?> GetTaskById(int id);
-    Task<Tasks> AddTask(TaskRequest request);
-    Task<Tasks?> UpdateTask(int id, TaskRequest request);
+    Task<List<TaskResponse>> GetAllTasks();
+    Task<TaskResponse?> GetTaskById(int id);
+    Task<TaskResponse> AddTask(TaskRequest request);
+    Task<TaskResponse?> UpdateTask(int id, TaskRequest request);
 }

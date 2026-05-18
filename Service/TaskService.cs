@@ -1,8 +1,10 @@
-namespace ToDo.Service;
-
+using ToDo.DTO;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Data;
 using ToDo.Models;
+
+namespace ToDo.Service;
+
 public class TaskService : ITaskService
 {
     public readonly AppDbContext db;
@@ -13,7 +15,55 @@ public class TaskService : ITaskService
         this.db = db;
     }
 
-    public async Task<Tasks?> UpdateTask(int id, TaskRequest request)
+    public async Task<List<TaskResponse>> GetAllTasks()
+    {
+        return await db.Tasks
+        .Select(task => new TaskResponse()
+        {
+            Id = task.Id,
+            Title = task.Title,
+            IsCompleted = task.IsCompleted
+        }).ToListAsync();
+    }
+
+    public async Task<TaskResponse?> GetTaskById(int id)
+    {
+        Tasks? task = await db.Tasks
+        .FirstOrDefaultAsync(t => t.Id == id);
+
+        if(task == null)
+        {
+            return null;
+        }
+        return new TaskResponse()
+        {
+            Id = task.Id,
+            Title = task.Title,
+            IsCompleted = task.IsCompleted
+        };
+    }
+
+
+    public async Task<TaskResponse> AddTask(TaskRequest request)
+    {
+        var task = new Tasks
+        {
+            Title = request.Title,
+            IsCompleted = request.IsCompleted
+        };
+
+        await db.Tasks.AddAsync(task);
+        await db.SaveChangesAsync();
+
+        return new TaskResponse()
+        {
+            Id = task.Id,
+            Title = task.Title,
+            IsCompleted = task.IsCompleted
+        };
+    }
+
+    public async Task<TaskResponse?> UpdateTask(int id, TaskRequest request)
     {
         var task = await db.Tasks.FirstOrDefaultAsync(t => t.Id == id);
 
@@ -25,30 +75,11 @@ public class TaskService : ITaskService
 
         await db.SaveChangesAsync();
 
-        return task;
-    }
-
-    public async Task<Tasks> AddTask(TaskRequest request)
-    {
-        var task = new Tasks
+        return new TaskResponse()
         {
-            Title = request.Title,
-            IsCompleted = request.IsCompleted
+            Id = task.Id,
+            Title = task.Title,
+            IsCompleted = task.IsCompleted  
         };
-
-        await db.Tasks.AddAsync(task);
-        await db.SaveChangesAsync();
-
-        return task;
-    }
-
-    public async Task<Tasks?> GetTaskById(int id)
-    {
-        return await db.Tasks.FirstOrDefaultAsync(t => t.Id == id);
-    }
-
-    public async Task<List<Tasks>> GetAllTasks()
-    {
-        return await db.Tasks.ToListAsync();
     }
 }
