@@ -1,6 +1,6 @@
 namespace ToDo.Models;
 
-public class Tasks
+public class TasksItem
 {
     public int Id { get; set; }
     public string? Title { get; set; }

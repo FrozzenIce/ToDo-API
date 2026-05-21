@@ -28,8 +28,7 @@ public class TaskService : ITaskService
 
     public async Task<TaskResponse?> GetTaskById(int id)
     {
-        Tasks? task = await db.Tasks
-        .FirstOrDefaultAsync(t => t.Id == id);
+        TasksItem? task = await db.Tasks.FindAsync(id);
 
         if(task == null)
         {
@@ -44,9 +43,16 @@ public class TaskService : ITaskService
     }
 
 
-    public async Task<TaskResponse> AddTask(TaskRequest request)
+    public async Task<TaskResponse?> AddTask(TaskRequest request)
     {
-        var task = new Tasks
+
+        if (string.IsNullOrEmpty(request.Title))
+        {
+            return null;
+        }
+
+
+        var task = new TasksItem
         {
             Title = request.Title,
             IsCompleted = request.IsCompleted
@@ -65,17 +71,24 @@ public class TaskService : ITaskService
 
     public async Task<TaskResponse?> UpdateTask(int id, TaskRequest request)
     {
-        var task = await db.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            throw new ArgumentException("Title is required");
+        }
+
+        var task = await db.Tasks.FindAsync(id);
 
         if (task == null)
-            return null;
+        {
+            throw new KeyNotFoundException("Task not found");
+        }
 
         task.Title = request.Title;
         task.IsCompleted = request.IsCompleted;
 
         await db.SaveChangesAsync();
 
-        return new TaskResponse()
+        return new TaskResponse
         {
             Id = task.Id,
             Title = task.Title,
@@ -85,8 +98,7 @@ public class TaskService : ITaskService
 
     public async Task<bool> DeleteTask(int id)
     {
-        Tasks? task = await db.Tasks
-        .FirstOrDefaultAsync(t => t.Id == id);
+        TasksItem? task = await db.Tasks.FindAsync(id);
         if(task is null)
         {
             return false;

@@ -45,16 +45,30 @@ app.MapPost("/tasks", async (TaskRequest request, ITaskService service) =>
 {
     var response = await service.AddTask(request);
 
+    if(response is null)
+    {
+        return Results.BadRequest("Invalid user input");
+    }
+
     return Results.Created($"/tasks/{response.Id}", response);
 });
 
 app.MapPut("/tasks/{id}", async (int id, TaskRequest request, ITaskService service) =>
 {
-    var task = await service.UpdateTask(id, request);
+    try
+    {
+        var task = await service.UpdateTask(id, request);
 
-    return task is null
-        ? Results.NotFound()
-        : Results.Ok(task);
+        return Results.Ok(task);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return Results.NotFound(ex.Message);
+    }
 });
 
 app.MapDelete("/tasks/{id}", async (int id, ITaskService service) =>
