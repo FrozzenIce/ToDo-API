@@ -57,4 +57,19 @@ app.MapPut("/tasks/{id}", async (int id, TaskRequest request, ITaskService servi
         : Results.Ok(task);
 });
 
+app.MapDelete("/tasks/{id}", async (int id, ITaskService service) =>
+{
+    var deleted = await service.DeleteTask(id);
+    return deleted
+    ? Results.Ok("Task Deleted")
+    : Results.NotFound();
+});
+
+app.MapGet("/tasks/count", async(ITaskService service) =>
+{
+    var count = await service.CountTasks();
+
+    return Results.Ok(count);
+});
+
 app.Run();

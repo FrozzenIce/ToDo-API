@@ -82,4 +82,25 @@ public class TaskService : ITaskService
             IsCompleted = task.IsCompleted  
         };
     }
+
+    public async Task<bool> DeleteTask(int id)
+    {
+        Tasks? task = await db.Tasks
+        .FirstOrDefaultAsync(t => t.Id == id);
+        if(task is null)
+        {
+            return false;
+        }
+        
+        db.Tasks.Remove(task);
+
+        await db.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<int> CountTasks()
+    {
+        return await db.Tasks.CountAsync();
+    }
 }
